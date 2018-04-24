@@ -1,0 +1,7 @@
+---
+
+apt_packages:
+ - placeholder
+
+pip_packages:
+ - ansible

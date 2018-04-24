@@ -1,0 +1,11 @@
+---
+
+apt_packages:
+ - nginx
+ - python-dev
+ - libpcre3
+ - libpcre3-dev
+
+pip_packages:
+ - uWSGI
+ - Flask

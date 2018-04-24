@@ -1,0 +1,9 @@
+---
+
+apt_packages:
+ - nmap
+ - tcpdump
+ - git
+
+pip_packages:
+ - placeholder

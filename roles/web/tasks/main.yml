@@ -1,0 +1,62 @@
+---
+- name: Install packages via APT
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+    state: present
+  with_items: "{{ apt_packages }}"
+  when: not skip_packages
+
+- name: Install package via PIP
+  pip:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ pip_packages }}"
+  when: not skip_packages
+
+- name: Create Flask directort if doesn't exist
+  file:
+    path: /var/flask/
+    state: directory
+    owner: www-data
+    group: www-data
+
+- name: Copy Flask files into /var/flask/
+  copy:
+    src: flask/
+    dest: /var/flask/
+    owner: www-data
+    group: www-data
+  notify: restart_fmtd
+
+- name: Copy systemd service definition to /lib/systemd/system
+  copy:
+    src: systemd/
+    dest: /lib/systemd/system/
+
+- name: Enable fmtd service to start on boot, and start service
+  service:
+    name: fmtd
+    state: started
+    enabled: yes
+
+- name: Delete Default nginx site
+  file:
+    path: /etc/nginx/{{ item }}
+    state: absent
+  with_items:
+  - "sites-enabled/default"
+  - "sites-available/default"
+
+- name: Copy Nginx site.conf files to /etc/nginx/sites-available/
+  copy:
+    src: nginx/
+    dest: /etc/nginx/sites-available/
+  notify: restart_nginx
+  
+- name: Create Symlink for available site
+  file: 
+    src: /etc/nginx/sites-available/all-in-one.conf
+    dest: /etc/nginx/sites-enabled/all-in-one.conf
+    state: link
+  notify: restart_nginx
